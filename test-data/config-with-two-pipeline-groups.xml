@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="72">
+  <server artifactsdir="artifacts" commandRepositoryLocation="default" serverId="590fc344-be24-4a80-aa6e-c4e3f05e8f41" />
+  <pipelines group="P.Group">
+    <pipeline name="typical" labeltemplate="something-${COUNT}" isLocked="false">
+      <materials>
+        <git url="git@bitbucket.org:springersbm/gomatic.git" />
+      </materials>
+      <stage name="build">
+        <jobs>
+          <job name="compile">
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+  <pipelines group="Second.Group">
+    <pipeline name="smoke-tests">
+      <materials>
+        <git url="git@bitbucket.org:springersbm/gomatic.git" />
+      </materials>
+      <stage name="build">
+        <jobs>
+          <job name="compile">
+            <tasks>
+              <exec command="make">
+                <arg>source code</arg>
+                <runif status="passed"/>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+</cruise>
