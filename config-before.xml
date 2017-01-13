@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<cruise schemaVersion="87" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd">
+	<server agentAutoRegisterKey="e98a4c1b-01f8-4df0-829f-18c15ca81551" artifactsdir="artifacts" commandRepositoryLocation="default" serverId="03d1cf74-6c66-4c68-ae15-12353388ef1d"/>
+	<agents>
+		<agent hostname="coracao-de-ouro" ipaddress="127.0.0.1" uuid="801022ec-fb61-429e-b9ff-3386b8f28d55"/>
+	</agents>
+</cruise>

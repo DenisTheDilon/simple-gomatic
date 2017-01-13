@@ -1,5 +1,5 @@
 from xml.etree import ElementTree as ET
-from gomatic.mixins import CommonEqualityMixin
+from simplegomatic.mixins import CommonEqualityMixin
 
 
 def fetch_artifact_src_from(element):

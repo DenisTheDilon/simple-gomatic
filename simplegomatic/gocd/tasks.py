@@ -1,15 +1,19 @@
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape
-from gomatic.gocd.artifacts import fetch_artifact_src_from
-from gomatic.mixins import CommonEqualityMixin
-from gomatic.xml_operations import Ensurance
+from simplegomatic.gocd.artifacts import fetch_artifact_src_from
+from simplegomatic.mixins import CommonEqualityMixin
+from simplegomatic.xml_operations import Ensurance
 
 
 def Task(element):
+    """
+    Task instance initializer
+    """
     runif = runif_from(element)
     if element.tag == "exec":
         command_and_args = [element.attrib["command"]] + [e.text for e in element.findall('arg')]
-        working_dir = element.attrib.get("workingdir", None)  # TODO not ideal to return "None" for working_dir
+        # TODO not ideal to return "None" for working_dir
+        working_dir = element.attrib.get("workingdir", None)
         return ExecTask(command_and_args, working_dir, runif)
     if element.tag == "fetchartifact":
         dest = element.attrib.get('dest', None)
@@ -23,6 +27,9 @@ def Task(element):
 
 
 class AbstractTask(CommonEqualityMixin):
+    """
+    Base Task class
+    """
     def __init__(self, runif):
         self._runif = runif
         valid_values = ['passed', 'failed', 'any']
@@ -35,6 +42,9 @@ class AbstractTask(CommonEqualityMixin):
 
 
 class FetchArtifactTask(AbstractTask):
+    """
+    GOCG Fetch Artifact task
+    """
     def __init__(self, pipeline, stage, job, src, dest=None, runif="passed"):
         super(self.__class__, self).__init__(runif)
         self.__pipeline = pipeline
@@ -45,31 +55,15 @@ class FetchArtifactTask(AbstractTask):
 
     type = 'fetchartifact'
 
-    @property
-    def pipeline(self):
-        return self.__pipeline
-
-    @property
-    def stage(self):
-        return self.__stage
-
-    @property
-    def job(self):
-        return self.__job
-
-    @property
-    def src(self):
-        return self.__src
-
-    @property
-    def dest(self):
-        return self.__dest
-
     def append_to(self, element):
-        src_type, src_value = self.src.as_xml_type_and_value
+        """
+        Append data to GoCD configuration XML
+        """
+        src_type, src_value = self.__src.as_xml_type_and_value
         if self.__dest is None:
             new_element = ET.fromstring(
-                '<fetchartifact pipeline="%s" stage="%s" job="%s" %s="%s" />' % (self.__pipeline, self.__stage, self.__job, src_type, src_value))
+                '<fetchartifact pipeline="%s" stage="%s" job="%s" %s="%s" />' % (self.__pipeline, \
+                self.__stage, self.__job, src_type, src_value))
         else:
             new_element = ET.fromstring(
                 '<fetchartifact pipeline="%s" stage="%s" job="%s" %s="%s" dest="%s"/>' % (
@@ -81,6 +75,9 @@ class FetchArtifactTask(AbstractTask):
 
 
 class ExecTask(AbstractTask):
+    """
+    GOCG Exec task
+    """
     def __init__(self, command_and_args, working_dir=None, runif="passed"):
         super(self.__class__, self).__init__(runif)
         self.__command_and_args = command_and_args
@@ -88,19 +85,15 @@ class ExecTask(AbstractTask):
 
     type = 'exec'
 
-    @property
-    def command_and_args(self):
-        return self.__command_and_args
-
-    @property
-    def working_dir(self):
-        return self.__working_dir
-
     def append_to(self, element):
+        """
+        Append data to GoCD configuration XML
+        """
         if self.__working_dir is None:
             new_element = ET.fromstring('<exec command="%s"></exec>' % self.__command_and_args[0])
         else:
-            new_element = ET.fromstring('<exec command="%s" workingdir="%s"></exec>' % (self.__command_and_args[0], self.__working_dir))
+            new_element = ET.fromstring('<exec command="%s" workingdir="%s"></exec>' % \
+                (self.__command_and_args[0], self.__working_dir))
 
         for arg in self.__command_and_args[1:]:
             new_element.append(ET.fromstring('<arg>%s</arg>' % escape(arg)))
@@ -112,23 +105,28 @@ class ExecTask(AbstractTask):
 
 
 class RakeTask(AbstractTask):
+    """
+    GOCG Rake task
+    """
     def __init__(self, target, runif="passed"):
         super(self.__class__, self).__init__(runif)
         self.__target = target
 
     type = 'rake'
 
-    @property
-    def target(self):
-        return self.__target
-
     def append_to(self, element):
+        """
+        Append data to GoCD configuration XML
+        """
         new_element = ET.fromstring('<rake target="%s"></rake>' % self.__target)
         Ensurance(element).ensure_child("tasks").append(new_element)
         return Task(new_element)
 
 
 def runif_from(element):
+    """
+    Checks is runif status is valid
+    """
     runifs = [e.attrib['status'] for e in element.findall("runif")]
     if len(runifs) == 0:
         return 'passed'

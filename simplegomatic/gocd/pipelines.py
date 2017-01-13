@@ -1,21 +1,27 @@
 from xml.etree import ElementTree as ET
-from gomatic.gocd.artifacts import Artifact
-from gomatic.gocd.generic import ThingWithResources, ThingWithEnvironmentVariables
-from gomatic.gocd.materials import Materials, GitMaterial
-from gomatic.gocd.tasks import Task
-from gomatic.mixins import CommonEqualityMixin
-from gomatic.xml_operations import PossiblyMissingElement, Ensurance, move_all_to_end
+from simplegomatic.gocd.artifacts import Artifact
+from simplegomatic.gocd.generic import ThingWithResources, ThingWithEnvironmentVariables
+from simplegomatic.gocd.materials import Materials, GitMaterial
+from simplegomatic.gocd.tasks import Task
+from simplegomatic.mixins import CommonEqualityMixin
+from simplegomatic.xml_operations import PossiblyMissingElement, Ensurance, move_all_to_end
 
 
 DEFAULT_LABEL_TEMPLATE = "0.${COUNT}"  # TODO confirm what default really is. I am pretty sure this is mistaken!
 
 
 class Tab(CommonEqualityMixin):
+    """
+    GoCD job's tab
+    """
     def __init__(self, name, path):
         self.__name = name
         self.__path = path
 
     def append_to(self, element):
+        """
+        Append data to GoCD configuration XML
+        """
         element.append(ET.fromstring('<tab name="%s" path="%s" />' % (self.__name, self.__path)))
 
 
